@@ -1,0 +1,10 @@
+### IntelliJ IDEA (root workspace) ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+### OS ###
+.DS_Store
+Thumbs.db
