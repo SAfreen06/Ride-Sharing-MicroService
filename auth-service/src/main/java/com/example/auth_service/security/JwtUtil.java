@@ -20,7 +20,7 @@ public class JwtUtil {
         this.expirationMs = expirationMs;
     }
 
-    public String generateToken(Long userId, String email, String role) {
+    public String generateToken(String userId, String email, String role) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMs);
 

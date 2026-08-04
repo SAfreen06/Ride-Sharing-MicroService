@@ -3,11 +3,11 @@ package com.example.auth_service.dto;
 public class AuthResponse {
 
     private final String token;
-    private final Long userId;
+    private final String userId;
     private final String name;
     private final String role;
 
-    public AuthResponse(String token, Long userId, String name, String role) {
+    public AuthResponse(String token, String userId, String name, String role) {
         this.token = token;
         this.userId = userId;
         this.name = name;
@@ -18,7 +18,7 @@ public class AuthResponse {
         return token;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 

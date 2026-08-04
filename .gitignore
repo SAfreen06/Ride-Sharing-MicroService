@@ -8,3 +8,7 @@ out/
 ### OS ###
 .DS_Store
 Thumbs.db
+
+### Secrets (never commit real credentials to this public repo) ###
+.env
+**/.env
