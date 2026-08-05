@@ -25,4 +25,22 @@ public class RouteConfig {
                 .filter(lb("auth-service"))
                 .build();
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> riderServiceRoute() {
+        return route("rider-service")
+                .route(path("/api/riders/**"), http())
+                .filter(stripPrefix(1))
+                .filter(lb("rider-service"))
+                .build();
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> driverServiceRoute() {
+        return route("driver-service")
+                .route(path("/api/drivers/**"), http())
+                .filter(stripPrefix(1))
+                .filter(lb("driver-service"))
+                .build();
+    }
 }
