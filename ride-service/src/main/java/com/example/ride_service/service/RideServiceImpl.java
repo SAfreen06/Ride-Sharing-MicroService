@@ -37,6 +37,7 @@ public class RideServiceImpl implements RideService {
         return toDto(ride);
     }
 
+    // RideServiceImpl.acceptRide()
     @Override
     public RideResponseDto acceptRide(String rideId, String driverId) {
         Ride ride = getRideOrThrow(rideId);
@@ -44,8 +45,10 @@ public class RideServiceImpl implements RideService {
             throw new InvalidRideStateException("Ride is not in REQUESTED state");
         }
 
-        var driver = driverClient.getProfile(driverId);
-        if (!driver.available()) {
+        boolean isAvailable = driverClient.getAvailableDrivers().stream()
+                .anyMatch(d -> d.userId().equals(driverId));
+
+        if (!isAvailable) {
             throw new InvalidRideStateException("Driver is not available");
         }
 

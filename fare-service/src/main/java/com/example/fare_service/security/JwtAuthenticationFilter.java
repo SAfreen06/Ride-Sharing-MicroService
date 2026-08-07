@@ -1,4 +1,4 @@
-package com.example.driver_service.security;
+package com.example.fare_service.security;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
