@@ -1,4 +1,4 @@
-package com.example.rider_service.security;
+package com.example.ride_service.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -8,9 +8,6 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-// This service only ever verifies tokens issued by the Auth Service, so it
-// shares the same signing secret (from the Config Server) but never signs
-// new ones.
 @Component
 public class JwtUtil {
 

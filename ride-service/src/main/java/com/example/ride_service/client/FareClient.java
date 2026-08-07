@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(name = "fare-service")
 public interface FareClient {
 
-    @PostMapping("/api/fares/calculate")
+    @PostMapping("/fares/calculate")
     FareResponse calculate(@RequestBody FareRequest request);
 
     record FareRequest(String rideId, double distanceKm, double durationMinutes) {}

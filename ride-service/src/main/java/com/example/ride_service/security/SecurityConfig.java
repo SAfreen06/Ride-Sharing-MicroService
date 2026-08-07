@@ -1,4 +1,4 @@
-package com.example.rider_service.security;
+package com.example.ride_service.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

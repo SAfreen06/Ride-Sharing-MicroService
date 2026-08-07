@@ -1,6 +1,7 @@
 package com.example.ride_service.service;
 
 import com.example.ride_service.client.FareClient;
+import com.example.ride_service.client.DriverClient;
 import com.example.ride_service.dto.RideRequestDto;
 import com.example.ride_service.dto.RideResponseDto;
 import com.example.ride_service.entity.Ride;
@@ -18,6 +19,7 @@ public class RideServiceImpl implements RideService {
 
     private final RideRepository rideRepository;
     private final FareClient fareClient;
+    private final DriverClient driverClient;
 
     @Override
     public RideResponseDto requestRide(RideRequestDto dto) {
@@ -41,6 +43,12 @@ public class RideServiceImpl implements RideService {
         if (ride.getStatus() != RideStatus.REQUESTED) {
             throw new InvalidRideStateException("Ride is not in REQUESTED state");
         }
+
+        var driver = driverClient.getProfile(driverId);
+        if (!driver.available()) {
+            throw new InvalidRideStateException("Driver is not available");
+        }
+
         ride.setDriverId(driverId);
         ride.setStatus(RideStatus.ACCEPTED);
         ride.setUpdatedAt(LocalDateTime.now());

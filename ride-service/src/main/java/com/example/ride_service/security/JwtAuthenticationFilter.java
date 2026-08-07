@@ -1,4 +1,4 @@
-package com.example.rider_service.security;
+package com.example.ride_service.security;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -13,10 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-// The Gateway already rejects requests with a missing/invalid JWT, but each
-// service still parses the token itself to know *which* user is calling
-// (userId claim) since the Gateway forwards the raw Authorization header
-// rather than injecting identity headers.
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
