@@ -61,4 +61,5 @@ public class RouteConfig {
                 .filter(lb("fare-service"))
                 .build();
     }
+
 }
