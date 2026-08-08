@@ -19,14 +19,14 @@ public class MatchService {
     private final DriverMatchRecordRepository driverMatchRecordRepository;
 
     public MatchService(DriverServiceClient driverServiceClient,
-                        RideServiceClient rideServiceClient,
-                        DriverMatchRecordRepository driverMatchRecordRepository) {
+            RideServiceClient rideServiceClient,
+            DriverMatchRecordRepository driverMatchRecordRepository) {
         this.driverServiceClient = driverServiceClient;
         this.rideServiceClient = rideServiceClient;
         this.driverMatchRecordRepository = driverMatchRecordRepository;
     }
 
-    public MatchResult match(MatchRequest request) {
+    public MatchResult match(MatchRequest request, String authorizationHeader) {
         List<DriverAvailabilityDto> availableDrivers = driverServiceClient.getAvailableDrivers();
 
         Optional<String> matchedDriverId = availableDrivers.stream()
@@ -34,23 +34,29 @@ public class MatchService {
                 .filter(driverId -> !driverMatchRecordRepository.existsByDriverId(driverId))
                 .findFirst();
 
-        MatchResult result;
-        if (matchedDriverId.isPresent()) {
-            DriverMatchRecord record = new DriverMatchRecord();
-            record.setDriverId(matchedDriverId.get());
-            record.setRideId(request.getRideId());
-            driverMatchRecordRepository.save(record);
-            result = new MatchResult(request.getRideId(), matchedDriverId.get(), true);
-        } else {
-            result = new MatchResult(request.getRideId(), null, false);
+        if (matchedDriverId.isEmpty()) {
+            return new MatchResult(request.getRideId(), null, false);
         }
 
-        rideServiceClient.reportMatchResult(result);
-        return result;
+        String driverId = matchedDriverId.get();
+
+        DriverMatchRecord record = new DriverMatchRecord();
+        record.setDriverId(driverId);
+        record.setRideId(request.getRideId());
+        driverMatchRecordRepository.save(record);
+
+        boolean accepted = rideServiceClient.acceptRide(request.getRideId(), driverId, authorizationHeader);
+
+        if (!accepted) {
+            // ride-service didn't confirm the assignment -- don't leave this
+            // driver stuck "busy" in our own records for nothing.
+            driverMatchRecordRepository.deleteByRideId(request.getRideId());
+            return new MatchResult(request.getRideId(), null, false);
+        }
+
+        return new MatchResult(request.getRideId(), driverId, true);
     }
 
-    // Called once Ride Service marks the ride completed/cancelled, so the
-    // driver becomes matchable again.
     public void release(String rideId) {
         driverMatchRecordRepository.deleteByRideId(rideId);
     }

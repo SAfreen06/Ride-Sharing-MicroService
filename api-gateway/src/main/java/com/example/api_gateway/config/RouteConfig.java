@@ -47,12 +47,12 @@ public class RouteConfig {
     @Bean
     public RouterFunction<ServerResponse> rideMatchingServiceRoute() {
         return route("ride-matching-service")
-                .route(path("/api/rides/**"), http())
+                .route(path("/api/matches/**"), http())
                 .filter(stripPrefix(1))
                 .filter(lb("ride-matching-service"))
                 .build();
     }
-  
+
     @Bean
     public RouterFunction<ServerResponse> rideServiceRoute() {
         return route("ride-service")
@@ -70,7 +70,7 @@ public class RouteConfig {
                 .filter(lb("notification-service"))
                 .build();
     }
-  
+
     @Bean
     public RouterFunction<ServerResponse> fareServiceRoute() {
         return route("fare-service")
