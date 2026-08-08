@@ -1,15 +1,11 @@
 package com.example.ride_matching_service.client;
 
-import com.example.ride_matching_service.dto.MatchResult;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-// ASSUMED CONTRACT -- ride-service isn't built yet. Once it is, confirm with
-// your teammate: (1) the Eureka application name if not "ride-service",
-// (2) the actual endpoint path/method, (3) the expected body shape.
-// Everything else in this service is independent of this guess.
 @Component
 public class RideServiceClient {
 
@@ -19,16 +15,26 @@ public class RideServiceClient {
         this.restClient = loadBalancedRestClientBuilder.baseUrl("http://ride-service").build();
     }
 
-    public void reportMatchResult(MatchResult result) {
+    // ride-service requires a valid JWT on every /rides/** call, and it
+    // re-validates driver availability itself before accepting. We forward
+    // the rider's own token (the one that hit our /matches endpoint) rather
+    // than trying to authenticate as a service -- ride-matching-service has
+    // no identity of its own to present.
+    public boolean acceptRide(String rideId, String driverId, String authorizationHeader) {
         try {
-            restClient.patch()
-                    .uri("/rides/{rideId}/match-result", result.getRideId())
-                    .body(result)
+            restClient.put()
+                    .uri(uriBuilder -> uriBuilder.path("/rides/{rideId}/accept")
+                            .queryParam("driverId", driverId)
+                            .build(rideId))
+                    .header(HttpHeaders.AUTHORIZATION, authorizationHeader)
                     .retrieve()
                     .toBodilessEntity();
+            return true;
         } catch (RestClientException e) {
-            // ride-service isn't up/finished yet -- don't fail the match
-            // because of that. The caller still gets the result synchronously.
+            // ride-service rejected it (ride not REQUESTED anymore, driver no
+            // longer available by the time it double-checked, or it's just
+            // unreachable) -- caller is responsible for releasing the local hold.
+            return false;
         }
     }
 }
